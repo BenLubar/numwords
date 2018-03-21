@@ -91,40 +91,59 @@ func bigThousands(buf []byte, n *big.Int) []byte {
 	return append(buf, "on"...)
 }
 
+var thousandOnes = [...]string{
+	"",
+	"un",
+	"duo",
+	"tre",
+	"quattuor",
+	"quinqua",
+	"se",
+	"septe",
+	"octo",
+	"nove",
+}
+
+var thousandTens = [...]string{
+	"",
+	"deci",
+	"viginti",
+	"triginta",
+	"quadraginta",
+	"quinquaginta",
+	"sexaginta",
+	"septuaginta",
+	"octoginta",
+	"nonaginta",
+}
+
+var thousandHundreds = [...]string{
+	"",
+	"centi",
+	"ducenti",
+	"trecenti",
+	"quadringenti",
+	"quingenti",
+	"sescenti",
+	"septingenti",
+	"octingenti",
+	"nongenti",
+}
+
 // 0 <= n < 1000
 func thousandPart(buf []byte, n int64) []byte {
 	if n < int64(len(simpleThousandParts)) {
 		return append(buf, simpleThousandParts[n]...)
 	}
 
-	s, x, nm := false, false, false
+	o := n % 10
+	s := o == 3
+	x := o == 6
+	nm := o == 7 || o == 9
+	buf = append(buf, thousandOnes[o]...)
 
-	switch n % 10 {
-	case 1:
-		buf = append(buf, "un"...)
-	case 2:
-		buf = append(buf, "duo"...)
-	case 3:
-		buf = append(buf, "tre"...)
-		s = true
-	case 4:
-		buf = append(buf, "quattuor"...)
-	case 5:
-		buf = append(buf, "quinqua"...)
-	case 6:
-		buf = append(buf, "se"...)
-		x = true
-	case 7:
-		buf = append(buf, "septe"...)
-		nm = true
-	case 8:
-		buf = append(buf, "octo"...)
-	case 9:
-		buf = append(buf, "nove"...)
-		nm = true
-	}
-
-	switch n / 10 % 10 {
+	d := n / 10 % 10
+	switch d {
 	case 1, 6, 7:
 		if nm {
 			buf = append(buf, 'n')
@@ -149,26 +168,7 @@ func thousandPart(buf []byte, n int64) []byte {
 		}
 	}
 
-	switch n / 10 % 10 {
-	case 1:
-		buf = append(buf, "deci"...)
-	case 2:
-		buf = append(buf, "viginti"...)
-	case 3:
-		buf = append(buf, "triginta"...)
-	case 4:
-		buf = append(buf, "quadraginta"...)
-	case 5:
-		buf = append(buf, "quinquaginta"...)
-	case 6:
-		buf = append(buf, "sexaginta"...)
-	case 7:
-		buf = append(buf, "septuaginta"...)
-	case 8:
-		buf = append(buf, "octoginta"...)
-	case 9:
-		buf = append(buf, "nonaginta"...)
-	}
+	buf = append(buf, thousandTens[d]...)
 
 	switch n / 10 % 100 {
 	case 10:
@@ -195,26 +195,7 @@ func thousandPart(buf []byte, n int64) []byte {
 		}
 	}
 
-	switch n / 100 % 10 {
-	case 1:
-		buf = append(buf, "centi"...)
-	case 2:
-		buf = append(buf, "ducenti"...)
-	case 3:
-		buf = append(buf, "trecenti"...)
-	case 4:
-		buf = append(buf, "quadringenti"...)
-	case 5:
-		buf = append(buf, "quingenti"...)
-	case 6:
-		buf = append(buf, "sescenti"...)
-	case 7:
-		buf = append(buf, "septingenti"...)
-	case 8:
-		buf = append(buf, "octingenti"...)
-	case 9:
-		buf = append(buf, "nongenti"...)
-	}
+	buf = append(buf, thousandHundreds[n/100%10]...)
 
 	return buf
 }
